@@ -1,10 +1,14 @@
 from pydantic import BaseModel, Field
 
+from gym_project.utils.settings import Settings
+
 _email_field = Field(
     min_length=7,
     max_length=70,
     regex=r"[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+",
 )
+
+settings: Settings = Settings()
 
 
 class UserRegister(BaseModel):
@@ -14,6 +18,7 @@ class UserRegister(BaseModel):
     email: str = _email_field
     phoneNumber: str = Field(max_length=15)
     password: str = Field(max_length=255)
+
 
 class UserOutput(BaseModel):
     id: int
@@ -26,3 +31,16 @@ class UserOutput(BaseModel):
     isSuperuser: bool
     createdAt: str
     updatedAt: str
+
+
+class UserLogin(BaseModel):
+    login: str
+    password: str
+
+
+class UserAuth(BaseModel):
+    access_token: str
+    expires_in: int = settings.secret_expires
+    refresh_expires_in: int = settings.refresh_expires
+    refresh_token: str
+    token_type: str = "Bearer"

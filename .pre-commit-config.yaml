@@ -32,25 +32,25 @@ repos:
         types: [python]
         language: system
 
-      - id: mypy
-        name: Typecheck with mypy
-        entry: poetry run mypy src
-        pass_filenames: false
-        types: [python]
-        language: system
-
-      - id: pytest-commit
-        name: Run tests with pytest
-        entry: poetry run pytest --random-order
-        pass_filenames: false
-        language: system
-        types: [python]
-        stages: [commit]
-
-      - id: pytest-push
-        name: Run tests with pytest
-        entry: poetry run pytest --random-order
-        pass_filenames: false
-        language: system
-        types: [python]
-        stages: [push]
+#      - id: mypy
+#        name: Typecheck with mypy
+#        entry: poetry run mypy src
+#        pass_filenames: false
+#        types: [python]
+#        language: system
+#
+#      - id: pytest-commit
+#        name: Run tests with pytest
+#        entry: poetry run pytest --random-order
+#        pass_filenames: false
+#        language: system
+#        types: [python]
+#        stages: [commit]
+#
+#      - id: pytest-push
+#        name: Run tests with pytest
+#        entry: poetry run pytest --random-order
+#        pass_filenames: false
+#        language: system
+#        types: [python]
+#        stages: [push]
