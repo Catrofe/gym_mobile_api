@@ -1,2 +1,4 @@
 db.db
 docker-compose.yml
+dataSources.xml
+misc.xml
