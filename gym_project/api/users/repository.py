@@ -1,21 +1,14 @@
-from gym_project.infra.Entities.entities import User
+from gym_project.infra.Entities.entities import User, PydanticUser, get_session_maker
 from sqlalchemy import select, update
 from gym_project.utils.erros_util import RaiseErrorGym
 from fastapi import status
-
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from sqlalchemy.orm import sessionmaker
 
 
 
 class UserRepository:
 
     def __init__(self):
-        engine = create_async_engine(
-            "sqlite+aiosqlite:///db.db",
-            echo=False,
-        )
-        self.sessionmaker = sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
+        self.sessionmaker = get_session_maker()
 
     async def user_is_valid(self, user):
         try:
@@ -41,6 +34,6 @@ class UserRepository:
                 user = User(**user.dict())
                 session.add(user)
                 await session.commit()
-                return user
+                return PydanticUser.from_orm(user)
         except Exception as error:
             raise RaiseErrorGym(status.HTTP_500_INTERNAL_SERVER_ERROR, error)

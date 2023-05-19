@@ -9,24 +9,18 @@ from sqlalchemy.orm import declarative_base, sessionmaker
 
 Base = declarative_base()
 
-class GymDatabase:
+engine = create_async_engine(
+    "sqlite+aiosqlite:///db.db",
+    echo=False,
+)
 
-    def __init__(self) -> None:
-        self.sessionmaker = sessionmaker
+def get_session_maker():
+    return sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
 
-    async def setup_db(self) -> None:
-        engine = create_async_engine(
-            "sqlite+aiosqlite:///db.db",
-            echo=False,
-        )
-        self.sessionmaker = sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
-        async with engine.begin() as conn:
-            await conn.run_sync(Base.metadata.create_all)
 
-    async def return_sessionmaker(self) -> AsyncSession:
-        return self.sessionmaker()
-
-DATABASE = GymDatabase()
+async def create_database():
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
 
 class User(Base):
     __tablename__ = "users"
