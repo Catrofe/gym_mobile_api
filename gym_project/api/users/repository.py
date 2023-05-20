@@ -44,7 +44,9 @@ class UserRepository:
         try:
             async with self.sessionmaker() as session:
                 query = await session.execute(
-                    select(User).filter(
+                    select(User)
+                    .where(User.isActive)
+                    .filter(
                         (User.username == user.login)
                         | (User.cpf == user.login)
                         | (User.email == user.login)
@@ -58,10 +60,10 @@ class UserRepository:
         except Exception as error:
             raise RaiseErrorGym(status.HTTP_500_INTERNAL_SERVER_ERROR, str(error))
 
-    async def get_user(self, id: int) -> PydanticUser | None:
+    async def get_user(self, id_user: int) -> PydanticUser | None:
         try:
             async with self.sessionmaker() as session:
-                query = await session.execute(select(User).filter(User.id == id))
+                query = await session.execute(select(User).filter(User.id == id_user))
                 result = query.scalar()
                 if result:
                     return PydanticUser.from_orm(result)

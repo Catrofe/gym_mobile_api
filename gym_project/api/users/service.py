@@ -72,3 +72,13 @@ class UserService:
             raise RaiseErrorGym(status.HTTP_400_BAD_REQUEST, "User not found")
         except Exception as errors:
             raise RaiseErrorGym(status.HTTP_500_INTERNAL_SERVER_ERROR, str(errors))
+
+    async def get_user_by_id(self, user_id: int) -> UserOutput:
+        try:
+            user = await self._repository.get_user(user_id)
+            if user:
+                return UserOutput(**user.dict())
+
+            raise RaiseErrorGym(status.HTTP_400_BAD_REQUEST, "User not found")
+        except Exception as errors:
+            raise RaiseErrorGym(status.HTTP_500_INTERNAL_SERVER_ERROR, str(errors))

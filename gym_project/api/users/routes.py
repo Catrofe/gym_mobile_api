@@ -35,3 +35,9 @@ async def refresh_token(user: UserToken = Depends(decode_refresh_token)) -> User
 async def get_user(user: UserToken = Depends(decode_token_jwt)) -> UserOutput:
     response = await service.get_user(user)
     return response
+
+
+@router.get("/{id}", status_code=status.HTTP_200_OK, response_model=UserOutput)
+async def get_user_by_id(id: int) -> UserOutput:
+    response = await service.get_user_by_id(int(id))
+    return response
