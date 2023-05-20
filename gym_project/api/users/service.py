@@ -62,3 +62,13 @@ class UserService:
         access_token = await encode_token_jwt(user)
         refresh_token = await generate_refresh_token(user)
         return UserAuth(access_token=access_token, refresh_token=refresh_token)
+
+    async def get_user(self, user_request: UserToken) -> UserOutput:
+        try:
+            user = await self._repository.get_user(user_request.id)
+            if user:
+                return UserOutput(**user.dict())
+
+            raise RaiseErrorGym(status.HTTP_400_BAD_REQUEST, "User not found")
+        except Exception as errors:
+            raise RaiseErrorGym(status.HTTP_500_INTERNAL_SERVER_ERROR, str(errors))

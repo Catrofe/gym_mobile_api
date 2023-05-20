@@ -57,3 +57,14 @@ class UserRepository:
                 return None
         except Exception as error:
             raise RaiseErrorGym(status.HTTP_500_INTERNAL_SERVER_ERROR, str(error))
+
+    async def get_user(self, id: int) -> PydanticUser | None:
+        try:
+            async with self.sessionmaker() as session:
+                query = await session.execute(select(User).filter(User.id == id))
+                result = query.scalar()
+                if result:
+                    return PydanticUser.from_orm(result)
+                return None
+        except Exception as error:
+            raise RaiseErrorGym(status.HTTP_500_INTERNAL_SERVER_ERROR, str(error))
