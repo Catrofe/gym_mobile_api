@@ -32,13 +32,13 @@ repos:
         types: [python]
         language: system
 
-#      - id: mypy
-#        name: Typecheck with mypy
-#        entry: poetry run mypy src
-#        pass_filenames: false
-#        types: [python]
-#        language: system
-#
+      - id: mypy
+        name: Typecheck with mypy
+        entry: poetry run mypy gym_project
+        pass_filenames: false
+        types: [python]
+        language: system
+
 #      - id: pytest-commit
 #        name: Run tests with pytest
 #        entry: poetry run pytest --random-order
