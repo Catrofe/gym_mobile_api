@@ -34,7 +34,7 @@ class User(Base):
     email = Column(String(70), unique=True, index=True)
     phoneNumber = Column(String(15), unique=True)
     password = Column(String(255))
-    isActive = Column(Boolean, default=False)
+    isActive = Column(Boolean, default=True)
     isSuperuser = Column(Boolean, default=False)
     createdAt = Column(DateTime, default=datetime.now())
     updatedAt = Column(DateTime, onupdate=datetime.now())
