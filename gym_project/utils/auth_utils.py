@@ -1,4 +1,5 @@
 import datetime
+from typing import Union
 
 import jwt
 from fastapi import Header, HTTPException
@@ -27,9 +28,9 @@ async def decode_token_jwt(authorization: str = Header()) -> UserToken:
         )
         return UserToken(
             id=token["id"],
-            is_superuser=token["is_superuser"],
-            is_active=token["is_active"],
-            created_at=token["created_at"],
+            isSuperuser=token["is_superuser"],
+            isActive=token["is_active"],
+            createdAt=token["created_at"],
         )
 
     except jwt.exceptions.InvalidSignatureError:
@@ -42,7 +43,7 @@ async def decode_token_jwt(authorization: str = Header()) -> UserToken:
         raise HTTPException(401, "TOKEN_INVALID")
 
 
-async def encode_token_jwt(user: User) -> str:
+async def encode_token_jwt(user: Union[User | UserToken]) -> str:
     return jwt.encode(
         {
             "id": user.id,
@@ -57,7 +58,7 @@ async def encode_token_jwt(user: User) -> str:
     )
 
 
-async def generate_refresh_token(user: User) -> str:
+async def generate_refresh_token(user: Union[User | UserToken]) -> str:
     return jwt.encode(
         {
             "id": user.id,

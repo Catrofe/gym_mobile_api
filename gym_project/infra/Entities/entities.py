@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 from datetime import datetime
-from pydantic_sqlalchemy import sqlalchemy_to_pydantic
 
+from pydantic_sqlalchemy import sqlalchemy_to_pydantic  # type: ignore
 from sqlalchemy import Boolean, Column, DateTime, Integer, String
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
@@ -14,13 +14,15 @@ engine = create_async_engine(
     echo=False,
 )
 
-def get_session_maker():
+
+def get_session_maker() -> sessionmaker[AsyncSession]:
     return sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
 
 
-async def create_database():
+async def create_database() -> None:
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+
 
 class User(Base):
     __tablename__ = "users"
@@ -36,5 +38,6 @@ class User(Base):
     isSuperuser = Column(Boolean, default=False)
     createdAt = Column(DateTime, default=datetime.now())
     updatedAt = Column(DateTime, onupdate=datetime.now())
+
 
 PydanticUser = sqlalchemy_to_pydantic(User)

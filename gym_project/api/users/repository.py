@@ -1,15 +1,16 @@
 from fastapi import status
 from sqlalchemy import select
 
+from gym_project.api.users.models import UserLogin, UserRegister
 from gym_project.infra.Entities.entities import PydanticUser, User, get_session_maker
 from gym_project.utils.erros_util import RaiseErrorGym
 
 
 class UserRepository:
-    def __init__(self):
+    def __init__(self) -> None:
         self.sessionmaker = get_session_maker()
 
-    async def user_is_valid(self, user):
+    async def user_is_valid(self, user: UserRegister) -> bool:
         try:
             async with self.sessionmaker() as session:
                 query = await session.execute(
@@ -27,19 +28,19 @@ class UserRepository:
                     return False
                 return True
         except Exception as error:
-            raise RaiseErrorGym(status.HTTP_500_INTERNAL_SERVER_ERROR, error)
+            raise RaiseErrorGym(status.HTTP_500_INTERNAL_SERVER_ERROR, str(error))
 
-    async def register_user(self, user):
+    async def register_user(self, user_request: UserRegister) -> PydanticUser:
         try:
             async with self.sessionmaker() as session:
-                user = User(**user.dict())
+                user = User(**user_request.dict())
                 session.add(user)
                 await session.commit()
                 return PydanticUser.from_orm(user)
         except Exception as error:
-            raise RaiseErrorGym(status.HTTP_500_INTERNAL_SERVER_ERROR, error)
+            raise RaiseErrorGym(status.HTTP_500_INTERNAL_SERVER_ERROR, str(error))
 
-    async def login_user(self, user):
+    async def login_user(self, user: UserLogin) -> PydanticUser | None:
         try:
             async with self.sessionmaker() as session:
                 query = await session.execute(
@@ -55,4 +56,4 @@ class UserRepository:
                     return PydanticUser.from_orm(result)
                 return None
         except Exception as error:
-            raise RaiseErrorGym(status.HTTP_500_INTERNAL_SERVER_ERROR, error)
+            raise RaiseErrorGym(status.HTTP_500_INTERNAL_SERVER_ERROR, str(error))
