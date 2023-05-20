@@ -33,14 +33,8 @@ async def decode_token_jwt(authorization: str = Header()) -> UserToken:
             createdAt=token["created_at"],
         )
 
-    except jwt.exceptions.InvalidSignatureError:
-        raise HTTPException(401, "INVALID_SIGNATURE")
-
-    except jwt.exceptions.ExpiredSignatureError:
-        raise HTTPException(401, "TOKEN_HAS_EXPIRED")
-
-    except jwt.exceptions.DecodeError:
-        raise HTTPException(401, "TOKEN_INVALID")
+    except Exception:
+        raise HTTPException(401, "UNAUTHORIZED")
 
 
 async def encode_token_jwt(user: Union[User | UserToken]) -> str:
