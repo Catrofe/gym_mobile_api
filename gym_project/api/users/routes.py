@@ -1,7 +1,8 @@
-from fastapi import APIRouter, status
+from fastapi import APIRouter, Depends, status
 
-from gym_project.api.users.models import UserLogin, UserRegister
+from gym_project.api.users.models import UserAuth, UserLogin, UserOutput, UserRegister
 from gym_project.api.users.service import UserService
+from gym_project.utils.auth_utils import UserToken, decode_refresh_token
 from gym_project.utils.erros_util import RaiseErrorGym
 
 service = UserService()
@@ -9,8 +10,8 @@ service = UserService()
 router = APIRouter()
 
 
-@router.post("/", status_code=status.HTTP_201_CREATED)
-async def register_user(body: UserRegister):
+@router.post("/", status_code=status.HTTP_201_CREATED, response_model=UserOutput)
+async def register_user(body: UserRegister) -> UserOutput:
     print("teste")
     response, errors = await service.register_user(body)
 
@@ -19,10 +20,16 @@ async def register_user(body: UserRegister):
     return response
 
 
-@router.post("/login", status_code=status.HTTP_200_OK)
-async def login_user(body: UserLogin):
+@router.post("/login", status_code=status.HTTP_200_OK, response_model=UserAuth)
+async def login_user(body: UserLogin) -> UserAuth:
     response, errors = await service.login_user(body)
 
     if errors is not None:
         raise RaiseErrorGym(errors)
+    return response
+
+
+@router.get("/refresh", status_code=status.HTTP_200_OK, response_model=UserAuth)
+async def refresh_token(user: UserToken = Depends(decode_refresh_token)) -> UserAuth:
+    response = await service.generate_auth_user(user)
     return response

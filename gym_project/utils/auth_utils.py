@@ -12,8 +12,9 @@ settings: Settings = Settings()
 
 class UserToken(BaseModel):
     id: int
-    is_superuser: bool
-    is_active: bool
+    isSuperuser: bool
+    isActive: bool
+    createdAt: str
 
 
 async def decode_token_jwt(authorization: str = Header()) -> UserToken:
@@ -24,7 +25,12 @@ async def decode_token_jwt(authorization: str = Header()) -> UserToken:
             leeway=datetime.timedelta(seconds=settings.secret_expires),
             algorithms=["HS256"],
         )
-        return UserToken(id=token["id"], superuser=token["is_superuser"])
+        return UserToken(
+            id=token["id"],
+            is_superuser=token["is_superuser"],
+            is_active=token["is_active"],
+            created_at=token["created_at"],
+        )
 
     except jwt.exceptions.InvalidSignatureError:
         raise HTTPException(401, "INVALID_SIGNATURE")
@@ -74,7 +80,12 @@ async def decode_refresh_token(authorization: str = Header()) -> UserToken | boo
             leeway=datetime.timedelta(seconds=settings.refresh_expires),
             algorithms=["HS256"],
         )
-        return UserToken(id=token["id"], superuser=token["is_superuser"])
+        return UserToken(
+            id=token["id"],
+            isSuperuser=token["is_superuser"],
+            isActive=token["is_active"],
+            createdAt=token["created_at"],
+        )
 
     except jwt.exceptions.InvalidSignatureError:
         raise HTTPException(401, "INVALID_SIGNATURE")

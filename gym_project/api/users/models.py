@@ -1,3 +1,6 @@
+from datetime import datetime
+from typing import Optional
+
 from pydantic import BaseModel, Field
 
 from gym_project.utils.settings import Settings
@@ -29,8 +32,8 @@ class UserOutput(BaseModel):
     phoneNumber: str
     isActive: bool
     isSuperuser: bool
-    createdAt: str
-    updatedAt: str
+    createdAt: datetime
+    updatedAt: Optional[str]
 
 
 class UserLogin(BaseModel):

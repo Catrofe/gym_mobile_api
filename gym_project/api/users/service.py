@@ -1,7 +1,7 @@
 import bcrypt
 from fastapi import status
 
-from gym_project.api.users.models import UserAuth, UserRegister
+from gym_project.api.users.models import UserAuth, UserOutput, UserRegister
 from gym_project.api.users.repository import UserRepository
 from gym_project.infra.Entities.entities import User
 from gym_project.utils.auth_utils import encode_token_jwt, generate_refresh_token
@@ -19,7 +19,7 @@ class UserService:
                     user_request.password
                 )
                 user = await self._repository.register_user(user_request)
-                return user, None
+                return UserOutput(**user.dict()), None
 
             return None, status.HTTP_409_CONFLICT
         except Exception as errors:
