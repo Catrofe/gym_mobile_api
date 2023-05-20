@@ -39,6 +39,7 @@ repos:
         types: [python]
         language: system
 
+
 #      - id: pytest-commit
 #        name: Run tests with pytest
 #        entry: poetry run pytest --random-order
