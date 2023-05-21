@@ -54,3 +54,12 @@ class UserEdit(BaseModel):
     email: Optional[str] = _email_field
     phoneNumber: Optional[str] = Field(max_length=15)
     password: Optional[str] = Field(max_length=255)
+
+
+class UserForgotPassword(BaseModel):
+    password: str = Field(max_length=255)
+    confirmPassword: str = Field(max_length=255)
+    username: str = Field(max_length=50)
+    email: str = _email_field
+    cpf: str = Field(max_length=11)
+    phoneNumber: str = Field(max_length=15)

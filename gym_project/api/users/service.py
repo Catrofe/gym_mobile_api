@@ -6,6 +6,7 @@ from fastapi import status
 from gym_project.api.users.models import (
     UserAuth,
     UserEdit,
+    UserForgotPassword,
     UserLogin,
     UserOutput,
     UserRegister,
@@ -26,7 +27,7 @@ class UserService:
 
     async def register_user(self, user_request: UserRegister) -> UserOutput:
         try:
-            if await self._repository.user_is_valid(user_request):
+            if not await self._repository.user_is_valid(user_request):
                 user_request.password = await self.encode_password(
                     user_request.password
                 )
@@ -93,7 +94,7 @@ class UserService:
         self, user_token: UserToken, user_request: UserEdit
     ) -> UserOutput:
         try:
-            if await self._repository.user_is_valid_to_edit(user_request):
+            if not await self._repository.user_is_valid_to_edit(user_request):
                 if user_request.password:
                     user_request.password = await self.encode_password(
                         user_request.password
@@ -103,5 +104,21 @@ class UserService:
                     return UserOutput(**user.dict())
 
             raise RaiseErrorGym(status.HTTP_400_BAD_REQUEST, "User not valid to edit")
+        except Exception as errors:
+            raise RaiseErrorGym(status.HTTP_500_INTERNAL_SERVER_ERROR, str(errors))
+
+    async def update_password(self, user_request: UserForgotPassword) -> bool:
+        try:
+            if await self._repository.verify_if_is_user(user_request):
+                if user_request.password == user_request.confirmPassword:
+                    user_request.password = await self.encode_password(
+                        user_request.password
+                    )
+                    await self._repository.update_password(user_request)
+                    return True
+                raise RaiseErrorGym(
+                    status.HTTP_400_BAD_REQUEST, "Passwords do not match"
+                )
+            raise RaiseErrorGym(status.HTTP_400_BAD_REQUEST, "User not found")
         except Exception as errors:
             raise RaiseErrorGym(status.HTTP_500_INTERNAL_SERVER_ERROR, str(errors))

@@ -1,7 +1,13 @@
 from fastapi import status
-from sqlalchemy import select
+from sqlalchemy import select, update
+from sqlalchemy.sql.expression import exists
 
-from gym_project.api.users.models import UserEdit, UserLogin, UserRegister
+from gym_project.api.users.models import (
+    UserEdit,
+    UserForgotPassword,
+    UserLogin,
+    UserRegister,
+)
 from gym_project.infra.Entities.entities import PydanticUser, User, get_session_maker
 from gym_project.utils.erros_util import RaiseErrorGym
 
@@ -14,19 +20,14 @@ class UserRepository:
         try:
             async with self.sessionmaker() as session:
                 query = await session.execute(
-                    select(
-                        User.username, User.cpf, User.email, User.phoneNumber
-                    ).filter(
+                    select((exists(User))).filter(
                         (User.username == user.username)
                         | (User.cpf == user.cpf)
                         | (User.email == user.email)
                         | (User.phoneNumber == user.phoneNumber)
                     )
                 )
-                result = query.scalar()
-                if result:
-                    return False
-                return True
+                return bool(query.scalar())
         except Exception as error:
             raise RaiseErrorGym(status.HTTP_500_INTERNAL_SERVER_ERROR, str(error))
 
@@ -35,16 +36,13 @@ class UserRepository:
             async with self.sessionmaker() as session:
                 query = await session.execute(
                     select(
-                        User.username, User.cpf, User.email, User.phoneNumber
-                    ).filter(
-                        (User.email == user.email)
-                        | (User.phoneNumber == user.phoneNumber)
+                        (exists(User)).filter(
+                            (User.email == user.email)
+                            | (User.phoneNumber == user.phoneNumber)
+                        )
                     )
                 )
-                result = query.scalar()
-                if result:
-                    return False
-                return True
+                return bool(query.scalar())
         except Exception as error:
             raise RaiseErrorGym(status.HTTP_500_INTERNAL_SERVER_ERROR, str(error))
 
@@ -103,5 +101,32 @@ class UserRepository:
                 await session.commit()
                 return PydanticUser.from_orm(result)
         except Exception as error:
-            print("repo")
+            raise RaiseErrorGym(status.HTTP_500_INTERNAL_SERVER_ERROR, str(error))
+
+    async def verify_if_is_user(self, user_request: UserForgotPassword) -> bool:
+        try:
+            async with self.sessionmaker() as session:
+                query = await session.execute(
+                    select(exists(User)).where(
+                        User.username == user_request.username,
+                        User.email == user_request.email,
+                        User.cpf == user_request.cpf,
+                        User.phoneNumber == user_request.phoneNumber,
+                        User.isActive,
+                    )
+                )
+            return bool(query.scalar())
+        except Exception as error:
+            raise RaiseErrorGym(status.HTTP_500_INTERNAL_SERVER_ERROR, str(error))
+
+    async def update_password(self, user_request: UserForgotPassword) -> None:
+        try:
+            async with self.sessionmaker() as session:
+                await session.execute(
+                    update(User)
+                    .where(User.email == user_request.email)
+                    .values(password=user_request.password)
+                )
+                await session.commit()
+        except Exception as error:
             raise RaiseErrorGym(status.HTTP_500_INTERNAL_SERVER_ERROR, str(error))

@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends, status
 from gym_project.api.users.models import (
     UserAuth,
     UserEdit,
+    UserForgotPassword,
     UserLogin,
     UserOutput,
     UserRegister,
@@ -55,3 +56,8 @@ async def update_user(
 ) -> UserOutput:
     response = await service.update_user(user, body)
     return response
+
+
+@router.patch("/password", status_code=status.HTTP_204_NO_CONTENT)
+async def update_password(body: UserForgotPassword) -> None:
+    await service.update_password(body)
