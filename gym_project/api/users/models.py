@@ -33,7 +33,7 @@ class UserOutput(BaseModel):
     isActive: bool
     isSuperuser: bool
     createdAt: datetime
-    updatedAt: Optional[str]
+    updatedAt: Optional[datetime]
 
 
 class UserLogin(BaseModel):
@@ -47,3 +47,10 @@ class UserAuth(BaseModel):
     refresh_expires_in: int = settings.refresh_expires
     refresh_token: str
     token_type: str = "Bearer"
+
+
+class UserEdit(BaseModel):
+    fullName: Optional[str] = Field(max_length=150)
+    email: Optional[str] = _email_field
+    phoneNumber: Optional[str] = Field(max_length=15)
+    password: Optional[str] = Field(max_length=255)

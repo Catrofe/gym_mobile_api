@@ -3,7 +3,13 @@ from typing import Union
 import bcrypt
 from fastapi import status
 
-from gym_project.api.users.models import UserAuth, UserLogin, UserOutput, UserRegister
+from gym_project.api.users.models import (
+    UserAuth,
+    UserEdit,
+    UserLogin,
+    UserOutput,
+    UserRegister,
+)
 from gym_project.api.users.repository import UserRepository
 from gym_project.infra.Entities.entities import User
 from gym_project.utils.auth_utils import (
@@ -80,5 +86,22 @@ class UserService:
                 return UserOutput(**user.dict())
 
             raise RaiseErrorGym(status.HTTP_400_BAD_REQUEST, "User not found")
+        except Exception as errors:
+            raise RaiseErrorGym(status.HTTP_500_INTERNAL_SERVER_ERROR, str(errors))
+
+    async def update_user(
+        self, user_token: UserToken, user_request: UserEdit
+    ) -> UserOutput:
+        try:
+            if await self._repository.user_is_valid_to_edit(user_request):
+                if user_request.password:
+                    user_request.password = await self.encode_password(
+                        user_request.password
+                    )
+                user = await self._repository.update_user(user_token.id, user_request)
+                if user:
+                    return UserOutput(**user.dict())
+
+            raise RaiseErrorGym(status.HTTP_400_BAD_REQUEST, "User not valid to edit")
         except Exception as errors:
             raise RaiseErrorGym(status.HTTP_500_INTERNAL_SERVER_ERROR, str(errors))

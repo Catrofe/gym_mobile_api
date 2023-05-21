@@ -1,6 +1,12 @@
 from fastapi import APIRouter, Depends, status
 
-from gym_project.api.users.models import UserAuth, UserLogin, UserOutput, UserRegister
+from gym_project.api.users.models import (
+    UserAuth,
+    UserEdit,
+    UserLogin,
+    UserOutput,
+    UserRegister,
+)
 from gym_project.api.users.service import UserService
 from gym_project.utils.auth_utils import (
     UserToken,
@@ -40,4 +46,12 @@ async def get_user(user: UserToken = Depends(decode_token_jwt)) -> UserOutput:
 @router.get("/{id}", status_code=status.HTTP_200_OK, response_model=UserOutput)
 async def get_user_by_id(id: int) -> UserOutput:
     response = await service.get_user_by_id(int(id))
+    return response
+
+
+@router.put("/", status_code=status.HTTP_200_OK, response_model=UserOutput)
+async def update_user(
+    body: UserEdit, user: UserToken = Depends(decode_token_jwt)
+) -> UserOutput:
+    response = await service.update_user(user, body)
     return response
