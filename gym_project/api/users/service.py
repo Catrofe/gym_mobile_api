@@ -45,7 +45,7 @@ class UserService:
                     request, status.HTTP_400_BAD_REQUEST, "Password or login incorrect"
                 )
 
-        raise RaiseErrorGym(request, status.HTTP_400_BAD_REQUEST, "User not found")
+        raise RaiseErrorGym(request, status.HTTP_404_NOT_FOUND, "User not found")
 
     async def encode_password(self, raw_password: str) -> str:
         return bcrypt.hashpw(raw_password.encode("utf8"), bcrypt.gensalt(8)).decode()
