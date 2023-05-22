@@ -37,11 +37,9 @@ class UserRepository:
         try:
             async with self.sessionmaker() as session:
                 query = await session.execute(
-                    select(
-                        (exists(User)).filter(
-                            (User.email == user.email)
-                            | (User.phoneNumber == user.phoneNumber)
-                        )
+                    select((exists(User))).filter(
+                        (User.email == user.email)
+                        | (User.phoneNumber == user.phoneNumber)
                     )
                 )
                 return bool(query.scalar())
