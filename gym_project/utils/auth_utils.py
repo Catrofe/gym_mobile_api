@@ -33,8 +33,8 @@ async def decode_token_jwt(authorization: str = Header()) -> UserToken:
             createdAt=token["created_at"],
         )
 
-    except Exception:
-        raise HTTPException(401, "UNAUTHORIZED")
+    except Exception as e:
+        raise HTTPException(401, "UNAUTHORIZED") from e
 
 
 async def encode_token_jwt(user: Union[User | UserToken]) -> str:
@@ -44,8 +44,10 @@ async def encode_token_jwt(user: Union[User | UserToken]) -> str:
             "is_superuser": user.isSuperuser,
             "is_active": user.isActive,
             "created_at": str(user.createdAt),
-            "exp": datetime.datetime.utcnow()
-            + datetime.timedelta(seconds=settings.secret_expires),
+            "exp": (
+                datetime.datetime.now(datetime.timezone.utc)
+                + datetime.timedelta(seconds=settings.secret_expires)
+            ),
         },
         settings.secret_key,
         algorithm="HS256",
@@ -59,8 +61,10 @@ async def generate_refresh_token(user: Union[User | UserToken]) -> str:
             "is_superuser": user.isSuperuser,
             "is_active": user.isActive,
             "created_at": str(user.createdAt),
-            "exp": datetime.datetime.utcnow()
-            + datetime.timedelta(seconds=settings.refresh_expires),
+            "exp": (
+                datetime.datetime.now(datetime.timezone.utc)
+                + datetime.timedelta(seconds=settings.refresh_expires)
+            ),
         },
         settings.refresh_secret_key,
         algorithm="HS256",
@@ -82,11 +86,11 @@ async def decode_refresh_token(authorization: str = Header()) -> UserToken | boo
             createdAt=token["created_at"],
         )
 
-    except jwt.exceptions.InvalidSignatureError:
-        raise HTTPException(401, "INVALID_SIGNATURE")
+    except jwt.exceptions.InvalidSignatureError as e:
+        raise HTTPException(401, "INVALID_SIGNATURE") from e
 
-    except jwt.exceptions.ExpiredSignatureError:
-        raise HTTPException(401, "TOKEN_HAS_EXPIRED")
+    except jwt.exceptions.ExpiredSignatureError as e:
+        raise HTTPException(401, "TOKEN_HAS_EXPIRED") from e
 
-    except jwt.exceptions.DecodeError:
-        raise HTTPException(401, "TOKEN_INVALID")
+    except jwt.exceptions.DecodeError as e:
+        raise HTTPException(401, "TOKEN_INVALID") from e

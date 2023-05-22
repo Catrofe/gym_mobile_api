@@ -29,7 +29,9 @@ class UserRepository:
                 )
                 return bool(query.scalar())
         except Exception as error:
-            raise RaiseErrorGym(status.HTTP_500_INTERNAL_SERVER_ERROR, str(error))
+            raise RaiseErrorGym(
+                status.HTTP_500_INTERNAL_SERVER_ERROR, str(error)
+            ) from error
 
     async def user_is_valid_to_edit(self, user: UserEdit) -> bool:
         try:
@@ -44,7 +46,9 @@ class UserRepository:
                 )
                 return bool(query.scalar())
         except Exception as error:
-            raise RaiseErrorGym(status.HTTP_500_INTERNAL_SERVER_ERROR, str(error))
+            raise RaiseErrorGym(
+                status.HTTP_500_INTERNAL_SERVER_ERROR, str(error)
+            ) from error
 
     async def register_user(self, user_request: UserRegister) -> PydanticUser:
         try:
@@ -54,7 +58,9 @@ class UserRepository:
                 await session.commit()
                 return PydanticUser.from_orm(user)
         except Exception as error:
-            raise RaiseErrorGym(status.HTTP_500_INTERNAL_SERVER_ERROR, str(error))
+            raise RaiseErrorGym(
+                status.HTTP_500_INTERNAL_SERVER_ERROR, str(error)
+            ) from error
 
     async def login_user(self, user: UserLogin) -> PydanticUser | None:
         try:
@@ -69,23 +75,29 @@ class UserRepository:
                         | (User.phoneNumber == user.login)
                     )
                 )
-                result = query.scalar()
-                if result:
-                    return PydanticUser.from_orm(result)
-                return None
+                return (
+                    PydanticUser.from_orm(result)
+                    if (result := query.scalar())
+                    else None
+                )
         except Exception as error:
-            raise RaiseErrorGym(status.HTTP_500_INTERNAL_SERVER_ERROR, str(error))
+            raise RaiseErrorGym(
+                status.HTTP_500_INTERNAL_SERVER_ERROR, str(error)
+            ) from error
 
     async def get_user(self, id_user: int) -> PydanticUser | None:
         try:
             async with self.sessionmaker() as session:
                 query = await session.execute(select(User).filter(User.id == id_user))
-                result = query.scalar()
-                if result:
-                    return PydanticUser.from_orm(result)
-                return None
+                return (
+                    PydanticUser.from_orm(result)
+                    if (result := query.scalar())
+                    else None
+                )
         except Exception as error:
-            raise RaiseErrorGym(status.HTTP_500_INTERNAL_SERVER_ERROR, str(error))
+            raise RaiseErrorGym(
+                status.HTTP_500_INTERNAL_SERVER_ERROR, str(error)
+            ) from error
 
     async def update_user(self, user_id: int, user_request: UserEdit) -> PydanticUser:
         try:
@@ -101,7 +113,9 @@ class UserRepository:
                 await session.commit()
                 return PydanticUser.from_orm(result)
         except Exception as error:
-            raise RaiseErrorGym(status.HTTP_500_INTERNAL_SERVER_ERROR, str(error))
+            raise RaiseErrorGym(
+                status.HTTP_500_INTERNAL_SERVER_ERROR, str(error)
+            ) from error
 
     async def verify_if_is_user(self, user_request: UserForgotPassword) -> bool:
         try:
@@ -117,7 +131,9 @@ class UserRepository:
                 )
             return bool(query.scalar())
         except Exception as error:
-            raise RaiseErrorGym(status.HTTP_500_INTERNAL_SERVER_ERROR, str(error))
+            raise RaiseErrorGym(
+                status.HTTP_500_INTERNAL_SERVER_ERROR, str(error)
+            ) from error
 
     async def update_password(self, user_request: UserForgotPassword) -> None:
         try:
@@ -129,4 +145,6 @@ class UserRepository:
                 )
                 await session.commit()
         except Exception as error:
-            raise RaiseErrorGym(status.HTTP_500_INTERNAL_SERVER_ERROR, str(error))
+            raise RaiseErrorGym(
+                status.HTTP_500_INTERNAL_SERVER_ERROR, str(error)
+            ) from error

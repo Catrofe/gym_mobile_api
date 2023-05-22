@@ -36,7 +36,9 @@ class UserService:
 
             raise RaiseErrorGym(status.HTTP_400_BAD_REQUEST, "User already exists")
         except Exception as errors:
-            raise RaiseErrorGym(status.HTTP_500_INTERNAL_SERVER_ERROR, str(errors))
+            raise RaiseErrorGym(
+                status.HTTP_500_INTERNAL_SERVER_ERROR, str(errors)
+            ) from errors
 
     async def login_user(self, user_request: UserLogin) -> UserAuth:
         try:
@@ -53,7 +55,9 @@ class UserService:
 
             raise RaiseErrorGym(status.HTTP_400_BAD_REQUEST, "User not found")
         except Exception as errors:
-            raise RaiseErrorGym(status.HTTP_500_INTERNAL_SERVER_ERROR, str(errors))
+            raise RaiseErrorGym(
+                status.HTTP_500_INTERNAL_SERVER_ERROR, str(errors)
+            ) from errors
 
     async def encode_password(self, raw_password: str) -> str:
         return bcrypt.hashpw(raw_password.encode("utf8"), bcrypt.gensalt(8)).decode()
@@ -78,7 +82,9 @@ class UserService:
 
             raise RaiseErrorGym(status.HTTP_400_BAD_REQUEST, "User not found")
         except Exception as errors:
-            raise RaiseErrorGym(status.HTTP_500_INTERNAL_SERVER_ERROR, str(errors))
+            raise RaiseErrorGym(
+                status.HTTP_500_INTERNAL_SERVER_ERROR, str(errors)
+            ) from errors
 
     async def get_user_by_id(self, user_id: int) -> UserOutput:
         try:
@@ -88,7 +94,9 @@ class UserService:
 
             raise RaiseErrorGym(status.HTTP_400_BAD_REQUEST, "User not found")
         except Exception as errors:
-            raise RaiseErrorGym(status.HTTP_500_INTERNAL_SERVER_ERROR, str(errors))
+            raise RaiseErrorGym(
+                status.HTTP_500_INTERNAL_SERVER_ERROR, str(errors)
+            ) from errors
 
     async def update_user(
         self, user_token: UserToken, user_request: UserEdit
@@ -105,7 +113,9 @@ class UserService:
 
             raise RaiseErrorGym(status.HTTP_400_BAD_REQUEST, "User not valid to edit")
         except Exception as errors:
-            raise RaiseErrorGym(status.HTTP_500_INTERNAL_SERVER_ERROR, str(errors))
+            raise RaiseErrorGym(
+                status.HTTP_500_INTERNAL_SERVER_ERROR, str(errors)
+            ) from errors
 
     async def update_password(self, user_request: UserForgotPassword) -> bool:
         try:
@@ -121,4 +131,6 @@ class UserService:
                 )
             raise RaiseErrorGym(status.HTTP_400_BAD_REQUEST, "User not found")
         except Exception as errors:
-            raise RaiseErrorGym(status.HTTP_500_INTERNAL_SERVER_ERROR, str(errors))
+            raise RaiseErrorGym(
+                status.HTTP_500_INTERNAL_SERVER_ERROR, str(errors)
+            ) from errors
