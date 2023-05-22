@@ -39,7 +39,7 @@ class UserService:
         user = await self._repository.login_user(user_request)
         if user:
             if await self.verify_correct_password(user_request.password, user.password):
-                return await self.generate_auth_user(user, request)
+                return await self.generate_auth_user(user)
             else:
                 raise RaiseErrorGym(
                     request, status.HTTP_400_BAD_REQUEST, "Password or login incorrect"
@@ -57,9 +57,7 @@ class UserService:
             raw_password.encode("utf8"), hashed_password.encode("utf8")
         )
 
-    async def generate_auth_user(
-        self, user: Union[User | UserToken], request: Request
-    ) -> UserAuth:
+    async def generate_auth_user(self, user: Union[User | UserToken]) -> UserAuth:
         access_token = await encode_token_jwt(user)
         refresh_token = await generate_refresh_token(user)
         return UserAuth(access_token=access_token, refresh_token=refresh_token)

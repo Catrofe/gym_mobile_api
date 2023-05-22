@@ -14,13 +14,12 @@ settings: Settings = Settings()
 
 class UserToken(BaseModel):
     id: int
-    isSuperuser: bool
     isActive: bool
     createdAt: str
 
 
 async def decode_token_jwt(
-    request: Union[Request | None] = None, authorization: str = Header()
+    request: Request, authorization: str = Header()
 ) -> UserToken:
     try:
         token = jwt.decode(
@@ -31,7 +30,6 @@ async def decode_token_jwt(
         )
         return UserToken(
             id=token["id"],
-            isSuperuser=token["is_superuser"],
             isActive=token["is_active"],
             createdAt=token["created_at"],
         )
@@ -46,7 +44,6 @@ async def encode_token_jwt(user: Union[User | UserToken]) -> str:
     return jwt.encode(
         {
             "id": user.id,
-            "is_superuser": user.isSuperuser,
             "is_active": user.isActive,
             "created_at": str(user.createdAt),
             "exp": (
@@ -63,7 +60,6 @@ async def generate_refresh_token(user: Union[User | UserToken]) -> str:
     return jwt.encode(
         {
             "id": user.id,
-            "is_superuser": user.isSuperuser,
             "is_active": user.isActive,
             "created_at": str(user.createdAt),
             "exp": (
@@ -77,7 +73,7 @@ async def generate_refresh_token(user: Union[User | UserToken]) -> str:
 
 
 async def decode_refresh_token(
-    request: Union[Request | None] = None, authorization: str = Header()
+    request: Request, authorization: str = Header()
 ) -> UserToken | bool:
     try:
         token = jwt.decode(
@@ -88,7 +84,6 @@ async def decode_refresh_token(
         )
         return UserToken(
             id=token["id"],
-            isSuperuser=token["is_superuser"],
             isActive=token["is_active"],
             createdAt=token["created_at"],
         )

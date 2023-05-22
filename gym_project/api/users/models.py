@@ -31,7 +31,6 @@ class UserOutput(BaseModel):
     email: str
     phoneNumber: str
     isActive: bool
-    isSuperuser: bool
     createdAt: datetime
     updatedAt: Optional[datetime]
 
