@@ -67,14 +67,14 @@ class UserService:
         if user:
             return UserOutput(**user.dict())
 
-        raise RaiseErrorGym(request, status.HTTP_400_BAD_REQUEST, "User not found")
+        raise RaiseErrorGym(request, status.HTTP_404_NOT_FOUND, "User not found")
 
     async def get_user_by_id(self, user_id: int, request: Request) -> UserOutput:
         user = await self._repository.get_user(user_id)
         if user:
             return UserOutput(**user.dict())
 
-        raise RaiseErrorGym(request, status.HTTP_400_BAD_REQUEST, "User not found")
+        raise RaiseErrorGym(request, status.HTTP_404_NOT_FOUND, "User not found")
 
     async def update_user(
         self, user_token: UserToken, user_request: UserEdit, request: Request
