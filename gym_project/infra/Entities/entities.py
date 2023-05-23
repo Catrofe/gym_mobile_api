@@ -7,19 +7,32 @@ from sqlalchemy import Boolean, Column, DateTime, Integer, String
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 
-Base = declarative_base()
+from gym_project.utils.settings import Settings
 
-engine = create_async_engine(
-    "sqlite+aiosqlite:///db.db",
-    echo=False,
-)
+settings = Settings()
+
+Base = declarative_base()
 
 
 def get_session_maker() -> sessionmaker[AsyncSession]:
+    url = settings.db_prod if settings.ambiente is None else settings.db_test
+    engine = create_async_engine(
+        url,
+        echo=False,
+    )
     return sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
 
 
 async def create_database() -> None:
+    url = settings.db_prod if settings.ambiente is None else settings.db_test
+    engine = create_async_engine(
+        url,
+        echo=False,
+    )
+    if settings.ambiente == "TEST":
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.drop_all)
+
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 

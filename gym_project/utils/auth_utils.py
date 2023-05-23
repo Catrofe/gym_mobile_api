@@ -22,6 +22,7 @@ async def decode_token_jwt(
     request: Request, authorization: str = Header()
 ) -> UserToken:
     try:
+        authorization = authorization.replace("Bearer ", "")
         token = jwt.decode(
             authorization,
             settings.secret_key,
@@ -76,6 +77,7 @@ async def decode_refresh_token(
     request: Request, authorization: str = Header()
 ) -> UserToken | bool:
     try:
+        authorization = authorization.replace("Bearer ", "")
         token = jwt.decode(
             authorization,
             settings.refresh_secret_key,

@@ -27,6 +27,7 @@ pre-commit = "^3.3.1"
 pytest-random-order = "^1.1.0"
 pytest-cov = "^4.0.0"
 aiosqlite = "^0.19.0"
+httpx = "^0.24.1"
 
 [build-system]
 requires = ["poetry-core"]

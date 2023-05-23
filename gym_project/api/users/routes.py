@@ -44,6 +44,9 @@ async def get_user(
 
 @router.get("/{id}", status_code=status.HTTP_200_OK, response_model=UserOutput)
 async def get_user_by_id(id: int, request: Request) -> UserOutput:
+    await decode_token_jwt(
+        request, authorization=str(request.headers.get("Authorization"))
+    )
     return await service.get_user_by_id(id, request)
 
 
