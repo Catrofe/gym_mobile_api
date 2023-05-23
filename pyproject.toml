@@ -32,3 +32,8 @@ httpx = "^0.24.1"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+addopts = "-ra -q --random-order --cov-report html --cov-fail-under=90"
+testpaths = "tests"
+junit_family = "xunit2"
