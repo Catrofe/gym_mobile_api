@@ -42,7 +42,7 @@ repos:
 
       - id: pytest-commit
         name: Run tests with pytest
-        entry: poetry run pytest --random-order
+        entry: poetry run pytest --random-order --cov-fail-under=90
         pass_filenames: false
         language: system
         types: [python]
@@ -50,7 +50,7 @@ repos:
 
       - id: pytest-push
         name: Run tests with pytest
-        entry: poetry run pytest --random-order
+        entry: poetry run pytest --random-order --cov-fail-under=90
         pass_filenames: false
         language: system
         types: [python]
