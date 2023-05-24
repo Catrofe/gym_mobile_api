@@ -30,7 +30,7 @@ async def login_user(body: UserLogin, request: Request) -> UserAuth:
     return await service.login_user(body, request)
 
 
-@router.get("/refresh", status_code=status.HTTP_200_OK, response_model=None)
+@router.get("/refresh", status_code=status.HTTP_200_OK, response_model=UserAuth)
 async def refresh_token(user: UserToken = Depends(decode_refresh_token)) -> UserAuth:
     return await service.generate_auth_user(user)
 
