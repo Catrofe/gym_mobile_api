@@ -63,3 +63,13 @@ class EmployeeForgotPassword(BaseModel):
     email: str = _email_field
     cpf: str = Field(max_length=11)
     phoneNumber: str = Field(max_length=15)
+
+
+class PatchEmployeeActive(BaseModel):
+    id: int
+    isActive: bool
+
+
+class PatchEmployeeSuperuser(BaseModel):
+    id: int
+    isSuperuser: bool

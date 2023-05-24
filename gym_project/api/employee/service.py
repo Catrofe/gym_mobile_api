@@ -10,6 +10,8 @@ from gym_project.api.employee.models import (
     EmployeeLogin,
     EmployeeOutput,
     EmployeeRegister,
+    PatchEmployeeActive,
+    PatchEmployeeSuperuser,
 )
 from gym_project.api.employee.repository import EmployeeRepository
 from gym_project.infra.Entities.entities import Employee
@@ -110,3 +112,27 @@ class EmployeeService:
                 request, status.HTTP_400_BAD_REQUEST, "Passwords do not match"
             )
         raise RaiseErrorGym(request, status.HTTP_400_BAD_REQUEST, "Employee not found")
+
+    async def get_all_employees_no_active(
+        self, request: Request
+    ) -> list[EmployeeOutput]:
+        employees = await self._repository.get_all_employees_no_active()
+        if employees:
+            return [EmployeeOutput(**employee.dict()) for employee in employees]
+        raise RaiseErrorGym(request, status.HTTP_404_NOT_FOUND, "Employees not found")
+
+    async def aprove_employee(
+        self, body: PatchEmployeeActive, request: Request
+    ) -> EmployeeOutput:
+        employee = await self._repository.aprove_employee(body)
+        if employee:
+            return EmployeeOutput(**employee.dict())
+        raise RaiseErrorGym(request, status.HTTP_404_NOT_FOUND, "Employee not found")
+
+    async def update_employee_admin(
+        self, body: PatchEmployeeSuperuser, request: Request
+    ) -> EmployeeOutput:
+        employee = await self._repository.update_employee_admin(body)
+        if employee:
+            return EmployeeOutput(**employee.dict())
+        raise RaiseErrorGym(request, status.HTTP_404_NOT_FOUND, "Employee not found")

@@ -7,6 +7,8 @@ from gym_project.api.employee.models import (
     EmployeeLogin,
     EmployeeOutput,
     EmployeeRegister,
+    PatchEmployeeActive,
+    PatchEmployeeSuperuser,
 )
 from gym_project.api.employee.service import EmployeeService
 from gym_project.utils.auth_utils import (
@@ -67,3 +69,34 @@ async def update_employee_password(
     body: EmployeeForgotPassword, request: Request
 ) -> None:
     await service.update_password(body, request)
+
+
+@router.get(
+    "/new-employees/",
+    status_code=status.HTTP_200_OK,
+    response_model=list[EmployeeOutput],
+)
+async def get_all_new_employee(request: Request) -> list[EmployeeOutput]:
+    return await service.get_all_employees_no_active(request)
+
+
+@router.patch(
+    "/activity/", status_code=status.HTTP_200_OK, response_model=EmployeeOutput
+)
+async def aprove_employee(
+    body: PatchEmployeeActive, request: Request
+) -> EmployeeOutput:
+    await decode_token_jwt_employee(
+        request, authorization=str(request.headers.get("Authorization"))
+    )
+    return await service.aprove_employee(body, request)
+
+
+@router.patch("/admin/", status_code=status.HTTP_200_OK, response_model=EmployeeOutput)
+async def update_employee_admin(
+    body: PatchEmployeeSuperuser, request: Request
+) -> EmployeeOutput:
+    await decode_token_jwt_employee(
+        request, authorization=str(request.headers.get("Authorization"))
+    )
+    return await service.update_employee_admin(body, request)

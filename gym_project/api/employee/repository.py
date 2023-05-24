@@ -6,6 +6,8 @@ from gym_project.api.employee.models import (
     EmployeeForgotPassword,
     EmployeeLogin,
     EmployeeRegister,
+    PatchEmployeeActive,
+    PatchEmployeeSuperuser,
 )
 from gym_project.infra.Entities.entities import (
     Employee,
@@ -113,3 +115,42 @@ class EmployeeRepository:
                 .values(password=employee_request.password)
             )
             await session.commit()
+
+    async def get_all_employees_no_active(self) -> list[PydanticEmployee]:
+        async with self.sessionmaker() as session:
+            query = await session.execute(
+                select(Employee).filter(Employee.isActive is False)
+            )
+            return [PydanticEmployee.from_orm(employee) for employee in query.scalars()]
+
+    async def aprove_employee(
+        self, body: PatchEmployeeActive
+    ) -> PydanticEmployee | None:
+        async with self.sessionmaker() as session:
+            query = await session.execute(
+                select(Employee).filter(Employee.id == body.id)
+            )
+            if result := query.scalar():
+                setattr(result, "isActive", body.isActive)
+
+                session.add(result)
+                await session.commit()
+
+                return PydanticEmployee.from_orm(result)
+            return None
+
+    async def update_employee_admin(
+        self, body: PatchEmployeeSuperuser
+    ) -> PydanticEmployee | None:
+        async with self.sessionmaker() as session:
+            query = await session.execute(
+                select(Employee).filter(Employee.id == body.id, Employee.isActive)
+            )
+            if result := query.scalar():
+                setattr(result, "isSuperuser", body.isSuperuser)
+
+                session.add(result)
+                await session.commit()
+
+                return PydanticEmployee.from_orm(result)
+            return None
