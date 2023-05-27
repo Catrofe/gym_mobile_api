@@ -1,5 +1,5 @@
 from sqlalchemy import select, update
-from sqlalchemy.sql.expression import exists
+from sqlalchemy.sql.expression import exists, false
 
 from gym_project.api.employee.models import (
     EmployeeEdit,
@@ -119,7 +119,7 @@ class EmployeeRepository:
     async def get_all_employees_no_active(self) -> list[PydanticEmployee]:
         async with self.sessionmaker() as session:
             query = await session.execute(
-                select(Employee).filter(Employee.isActive is False)
+                select(Employee).where(Employee.isActive == false())
             )
             return [PydanticEmployee.from_orm(employee) for employee in query.scalars()]
 

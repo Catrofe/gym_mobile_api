@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
 
+from gym_project.api.auth import routes as auth_routes
 from gym_project.api.employee import routes as employee_routes
 from gym_project.api.users import routes as users_routes
 from gym_project.infra.Entities.entities import create_database
@@ -24,3 +25,4 @@ app.include_router(users_routes.router, prefix=f"{BASE_PATH}/users", tags=["user
 app.include_router(
     employee_routes.router, prefix=f"{BASE_PATH}/employees", tags=["employees"]
 )
+app.include_router(auth_routes.router, prefix=f"{BASE_PATH}/auth", tags=["auth"])

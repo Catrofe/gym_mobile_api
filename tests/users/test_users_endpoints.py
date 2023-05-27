@@ -3,7 +3,7 @@ import asyncio
 import pytest
 from fastapi.testclient import TestClient
 
-from gym_project.api.users.models import UserAuth
+from gym_project.api.auth.models import LoginAuthResponse
 from gym_project.app import app, startup_event
 
 client = TestClient(app)
@@ -28,13 +28,14 @@ def create_user(change_db_url):
 
 
 @pytest.fixture
-def login_user(create_user) -> UserAuth:
+def login_user(create_user) -> LoginAuthResponse:
     response = client.post(
-        "/api/gym/users/login", json={"login": "catrofe", "password": "1234ab1234"}
+        "/api/gym/auth/",
+        json={"login": "catrofe", "password": "1234ab1234", "typeUser": "user"},
     )
 
     if response.status_code == 200:
-        return UserAuth(**response.json())
+        return LoginAuthResponse(**response.json())
 
 
 def test_create_user_valid(change_db_url):
@@ -51,7 +52,7 @@ def test_create_user_valid(change_db_url):
     assert response.status_code == 201
 
 
-def test_create_user_bad_request(change_db_url):
+def test_create_user_bad_request(create_user):
     request = {
         "fullName": "Christian Lopes",
         "username": "catrofe",
@@ -61,84 +62,9 @@ def test_create_user_bad_request(change_db_url):
         "password": "1234ab1234",
     }
 
-    for i in range(2):
-        response = client.post("/api/gym/users", json=request)
+    response = client.post("/api/gym/users", json=request)
 
     assert response.status_code == 400
-
-
-def test_user_login_with_username(create_user):
-    response = client.post(
-        "/api/gym/users/login", json={"login": "catrofe", "password": "1234ab1234"}
-    )
-
-    assert response.status_code == 200
-
-
-def test_user_login_with_cpf(create_user):
-    response = client.post(
-        "/api/gym/users/login", json={"login": "18313646705", "password": "1234ab1234"}
-    )
-
-    assert response.status_code == 200
-
-
-def test_user_login_with_email(create_user):
-    response = client.post(
-        "/api/gym/users/login",
-        json={"login": "teste@gmail.com", "password": "1234ab1234"},
-    )
-
-    assert response.status_code == 200
-
-
-def test_user_login_with_phone_number(create_user):
-    response = client.post(
-        "/api/gym/users/login", json={"login": "21999999999", "password": "1234ab1234"}
-    )
-
-    assert response.status_code == 200
-
-
-def test_user_login_not_found(create_user):
-    response = client.post(
-        "/api/gym/users/login", json={"login": "", "password": "1234ab1234"}
-    )
-
-    assert response.status_code == 404
-
-
-def test_user_login_bad_request(create_user):
-    response = client.post(
-        "/api/gym/users/login", json={"login": "catrofe", "password": ""}
-    )
-
-    assert response.status_code == 400
-
-
-def test_user_refresh_token_with_bearer(login_user):
-    response = client.get(
-        "/api/gym/users/refresh",
-        headers={"Authorization": f"Bearer {login_user.refresh_token}"},
-    )
-
-    assert response.status_code == 200
-
-
-def test_user_refresh_token_without_bearer(login_user):
-    response = client.get(
-        "/api/gym/users/refresh", headers={"Authorization": login_user.refresh_token}
-    )
-
-    assert response.status_code == 200
-
-
-def test_user_refresh_token_error(login_user):
-    response = client.get(
-        "/api/gym/users/refresh", headers={"Authorization": login_user.access_token}
-    )
-
-    assert response.status_code == 401
 
 
 def test_user_get_my_user(login_user):
@@ -213,8 +139,8 @@ def test_put_user_by_token_and_login(login_user):
     )
 
     response = client.post(
-        "api/gym/users/login",
-        json={"login": "teste2@gmail.com", "password": "123123123"},
+        "api/gym/auth/",
+        json={"login": "teste2@gmail.com", "password": "123123123", "typeUser": "user"},
     )
     assert response.status_code == 200
 
@@ -254,7 +180,7 @@ def test_patch_change_password_and_login(login_user):
     )
 
     response = client.post(
-        "api/gym/users/login",
-        json={"login": "teste@gmail.com", "password": "123123123"},
+        "api/gym/auth/",
+        json={"login": "teste@gmail.com", "password": "123123123", "typeUser": "user"},
     )
     assert response.status_code == 200

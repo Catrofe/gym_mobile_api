@@ -1,19 +1,14 @@
 from fastapi import APIRouter, Depends, Request, status
 
+from gym_project.api.auth.models import LoginToken
 from gym_project.api.users.models import (
-    UserAuth,
     UserEdit,
     UserForgotPassword,
-    UserLogin,
     UserOutput,
     UserRegister,
 )
 from gym_project.api.users.service import UserService
-from gym_project.utils.auth_utils import (
-    UserToken,
-    decode_refresh_token,
-    decode_token_jwt,
-)
+from gym_project.utils.auth_utils_poc import is_common_user, jwt_authorization
 
 service = UserService()
 
@@ -25,35 +20,35 @@ async def register_user(body: UserRegister, request: Request) -> UserOutput:
     return await service.register_user(body, request)
 
 
-@router.post("/login", status_code=status.HTTP_200_OK, response_model=UserAuth)
-async def login_user(body: UserLogin, request: Request) -> UserAuth:
-    return await service.login_user(body, request)
-
-
-@router.get("/refresh", status_code=status.HTTP_200_OK, response_model=UserAuth)
-async def refresh_token(user: UserToken = Depends(decode_refresh_token)) -> UserAuth:
-    return await service.generate_auth_user(user)
-
-
-@router.get("/", status_code=status.HTTP_200_OK, response_model=UserOutput)
-async def get_user(
-    request: Request, user: UserToken = Depends(decode_token_jwt)
-) -> UserOutput:
+@router.get(
+    "/",
+    status_code=status.HTTP_200_OK,
+    dependencies=[Depends(jwt_authorization.decode_token), Depends(is_common_user)],
+    response_model=UserOutput,
+)
+async def get_user(request: Request) -> UserOutput:
+    user = LoginToken(**request.state.user)
     return await service.get_user(user, request)
 
 
-@router.get("/{id}", status_code=status.HTTP_200_OK, response_model=UserOutput)
+@router.get(
+    "/{id}",
+    status_code=status.HTTP_200_OK,
+    dependencies=[Depends(jwt_authorization.decode_token), Depends(is_common_user)],
+    response_model=UserOutput,
+)
 async def get_user_by_id(id: int, request: Request) -> UserOutput:
-    await decode_token_jwt(
-        request, authorization=str(request.headers.get("Authorization"))
-    )
     return await service.get_user_by_id(id, request)
 
 
-@router.put("/", status_code=status.HTTP_200_OK, response_model=UserOutput)
-async def update_user(
-    body: UserEdit, request: Request, user: UserToken = Depends(decode_token_jwt)
-) -> UserOutput:
+@router.put(
+    "/",
+    status_code=status.HTTP_200_OK,
+    dependencies=[Depends(jwt_authorization.decode_token), Depends(is_common_user)],
+    response_model=UserOutput,
+)
+async def update_user(body: UserEdit, request: Request) -> UserOutput:
+    user = LoginToken(**request.state.user)
     return await service.update_user(user, body, request)
 
 
