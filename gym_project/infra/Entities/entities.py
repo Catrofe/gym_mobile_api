@@ -53,3 +53,22 @@ class User(Base):
 
 
 PydanticUser = sqlalchemy_to_pydantic(User)
+
+
+class Employee(Base):
+    __tablename__ = "employees"
+
+    id = Column(Integer, primary_key=True, index=True)
+    fullName = Column(String(150))
+    username = Column(String(50), unique=True, index=True)
+    cpf = Column(String(11), unique=True, index=True)
+    email = Column(String(70), unique=True, index=True)
+    phoneNumber = Column(String(15), unique=True)
+    password = Column(String(255))
+    isActive = Column(Boolean, default=False)
+    isSuperuser = Column(Boolean, default=False)
+    createdAt = Column(DateTime, default=datetime.now())
+    updatedAt = Column(DateTime, onupdate=datetime.now())
+
+
+PydanticEmployee = sqlalchemy_to_pydantic(Employee)
