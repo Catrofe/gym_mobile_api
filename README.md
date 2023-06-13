@@ -3,8 +3,8 @@
 
 
 - [x] Criar crud para alunos.
-- [ ] Criar crud para professores.
-- [ ] Refatorar Auth
+- [x] Criar crud para professores.
+- [x] Refatorar Auth
 - [ ] Publishing
 - [ ] Criar crud para entrada/saida dos alunos.
 - [ ] Criar crud dados financeiros dos alunos.
