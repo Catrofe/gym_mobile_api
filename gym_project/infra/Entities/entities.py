@@ -3,9 +3,9 @@ from __future__ import annotations
 from datetime import datetime
 
 from pydantic_sqlalchemy import sqlalchemy_to_pydantic  # type: ignore
-from sqlalchemy import Boolean, Column, DateTime, Integer, String
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from sqlalchemy.orm import declarative_base, sessionmaker
+from sqlalchemy.orm import declarative_base, relationship, sessionmaker
 
 from gym_project.utils.settings import Settings
 
@@ -72,3 +72,32 @@ class Employee(Base):
 
 
 PydanticEmployee = sqlalchemy_to_pydantic(Employee)
+
+
+class ExtractFinancial(Base):
+    __tablename__ = "extract_financials"
+
+    id = Column(Integer, primary_key=True, index=True)
+    idFinancial = Column(Integer, ForeignKey("financials.id"))
+    idEmployee = Column(Integer)
+    value = Column(Integer)
+    createdAt = Column(DateTime, default=datetime.now())
+
+
+PydanticExtractFinancial = sqlalchemy_to_pydantic(ExtractFinancial)
+
+
+class Financial(Base):
+    __tablename__ = "financials"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user = Column(Integer, ForeignKey("users.id"), unique=True)
+    methodPayment = Column(String(50))
+    dtMaturity = Column(DateTime)
+    dtFirstPayment = Column(DateTime)
+    extractFinancial = relationship("ExtractFinancial", lazy="joined")  # type: ignore
+    createdAt = Column(DateTime, default=datetime.now())
+    updatedAt = Column(DateTime, onupdate=datetime.now())
+
+
+PydanticFinancial = sqlalchemy_to_pydantic(Financial)
